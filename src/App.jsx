@@ -10,6 +10,7 @@ import Services from './components/Services';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ResumeModal from './components/ResumeModal';
+import Chatbot from './components/Chatbot';
 
 export default function App() {
   const [resumeOpen, setResumeOpen] = useState(false);
@@ -53,6 +54,9 @@ export default function App() {
         isOpen={resumeOpen}
         onClose={() => setResumeOpen(false)}
       />
+
+      {/* Floating Interactive Robot AI Copilot */}
+      <Chatbot />
     </div>
   );
 }

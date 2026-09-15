@@ -111,3 +111,34 @@
 pre code {
   font-family: 'JetBrains Mono', monospace;
 }
+
+/* Robot Bot Animations */
+@keyframes robotWave {
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(20deg); }
+  40%, 80% { transform: rotate(-12deg); }
+}
+
+@keyframes robotBlink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes robotAntennaGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px #38bdf8); opacity: 0.8; }
+  50% { filter: drop-shadow(0 0 12px #38bdf8); opacity: 1; }
+}
+
+.animate-robot-wave {
+  transform-origin: 80% 80%;
+  animation: robotWave 2.5s ease-in-out infinite;
+}
+
+.animate-robot-blink {
+  animation: robotBlink 4s infinite;
+}
+
+.animate-antenna-glow {
+  animation: robotAntennaGlow 1.5s ease-in-out infinite;
+}
+
