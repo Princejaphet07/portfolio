@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Send, Copy, Check, Clock, MapPin, Zap, MessageSquare, ExternalLink } from 'lucide-react';
+import { Mail, Send, Copy, Check, Clock, MapPin, Zap, MessageSquare, ExternalLink, User, Tag, Sparkles, Loader2 } from 'lucide-react';
 import { Github, Linkedin } from './Icons';
 import confetti from 'canvas-confetti';
 import { personalInfo } from '../data/portfolioData';
@@ -7,11 +7,19 @@ import { soundFx } from '../utils/sound';
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [selectedIntent, setSelectedIntent] = useState('Web & App Project');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [copiedField, setCopiedField] = useState(null);
   const [philippinesTime, setPhilippinesTime] = useState('');
+
+  const intents = [
+    { label: '🚀 Web & App Project', value: 'Web & App Project' },
+    { label: '💼 Hiring / Contract', value: 'Hiring / Full-Time Role' },
+    { label: '⚙️ Backend & Database', value: 'Backend & Database' },
+    { label: '☕ Say Hello / Collab', value: 'Say Hello & Collab' },
+  ];
 
   // Live Philippine Clock (UTC+8)
   useEffect(() => {
@@ -48,14 +56,17 @@ export default function Contact() {
     setErrorMessage('');
 
     try {
+      const fullSubject = `[${selectedIntent}] ${formData.subject || 'Portfolio Inquiry'} — from ${formData.name}`;
+
       // 1. Send live email directly to japhetvender00@gmail.com via Web3Forms
       const emailPayload = {
         access_key: '94caf3ce-60c1-475e-ace3-fce72a8fe240',
         name: formData.name,
         email: formData.email,
-        subject: formData.subject || `New Portfolio Inquiry from ${formData.name}`,
-        message: formData.message,
-        from_name: 'Prince Japhet Portfolio',
+        subject: fullSubject,
+        message: `Topic / Category: ${selectedIntent}\nSender Name: ${formData.name}\nSender Email: ${formData.email}\nSubject: ${formData.subject || 'General Inquiry'}\n\nMessage:\n${formData.message}`,
+        from_name: `Portfolio: ${formData.name}`,
+        reply_to: formData.email,
       };
 
       const emailResponse = await fetch('https://api.web3forms.com/submit', {
@@ -80,6 +91,7 @@ export default function Contact() {
             fields: {
               name: { stringValue: formData.name },
               email: { stringValue: formData.email },
+              category: { stringValue: selectedIntent },
               subject: { stringValue: formData.subject || 'General Inquiry' },
               message: { stringValue: formData.message },
               createdAt: { timestampValue: new Date().toISOString() },
@@ -102,11 +114,11 @@ export default function Contact() {
       });
 
       setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setSubmitted(false), 10000);
+      setTimeout(() => setSubmitted(false), 12000);
     } catch (err) {
       console.error('Submission error:', err);
       // Fallback: Open mailto directly
-      const mailtoLink = `mailto:japhetvender00@gmail.com?subject=${encodeURIComponent(formData.subject || 'Portfolio Inquiry')}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+      const mailtoLink = `mailto:japhetvender00@gmail.com?subject=${encodeURIComponent(formData.subject || 'Portfolio Inquiry')}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nCategory: ${selectedIntent}\n\nMessage:\n${formData.message}`)}`;
       window.location.href = mailtoLink;
       setSubmitting(false);
       setSubmitted(true);
@@ -123,18 +135,18 @@ export default function Contact() {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-panel border border-slate-700/80 text-xs font-mono text-brand-cyan">
-            <Mail className="w-3.5 h-3.5" />
-            <span>GET IN TOUCH</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel border border-brand-cyan/30 text-xs font-mono text-brand-cyan shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-brand-cyan animate-pulse" />
+            <span>LET'S CONNECT & COLLABORATE</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Let's Build Something <br />
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+            Have a Project in Mind? <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan via-brand-electric to-brand-violet">
-              Exceptional Together
+              Let's Build It Together
             </span>
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Have a project in mind, want to build a modern web/mobile app, or looking to add a full-stack developer to your team? My inbox is always open.
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+            Whether you need a full-stack web app, custom system, or looking to add a passionate developer to your team — my inbox is always open.
           </p>
         </div>
 
@@ -144,19 +156,21 @@ export default function Contact() {
           <div className="lg:col-span-5 space-y-6">
             
             {/* Direct Connect Card */}
-            <div className="glass-panel p-7 rounded-3xl border border-slate-800/80 space-y-6">
+            <div className="glass-panel p-7 sm:p-8 rounded-3xl border border-slate-800/90 space-y-6 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/5 rounded-full blur-2xl group-hover:bg-brand-cyan/10 transition-colors duration-500"></div>
+
               <div>
-                <h3 className="text-xl font-bold text-white tracking-tight">
-                  Direct Contact Hub
+                <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                  <span>Direct Contact Hub</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  Connect directly with Prince Japhet Vender
+                  Reach out directly to Prince Japhet Vender
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {/* Email Chip */}
-                <div className="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+                <div className="glass-panel p-4 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20">
                       <Mail className="w-4 h-4" />
@@ -192,7 +206,8 @@ export default function Contact() {
                       </div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-800/50 flex items-center gap-1.5 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     ONLINE
                   </span>
                 </div>
@@ -204,7 +219,7 @@ export default function Contact() {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => soundFx.click()}
-                    className="glass-panel p-3.5 rounded-2xl border border-slate-800 hover:border-slate-600 flex items-center gap-2.5 text-xs text-slate-200 transition-colors group"
+                    className="glass-panel p-3.5 rounded-2xl border border-slate-800 hover:border-slate-600 flex items-center gap-2.5 text-xs text-slate-200 transition-all hover:scale-[1.02] group"
                   >
                     <Github className="w-4 h-4 text-slate-400 group-hover:text-white" />
                     <span className="font-semibold">GitHub</span>
@@ -216,7 +231,7 @@ export default function Contact() {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => soundFx.click()}
-                    className="glass-panel p-3.5 rounded-2xl border border-slate-800 hover:border-brand-cyan/50 flex items-center gap-2.5 text-xs text-slate-200 transition-colors group"
+                    className="glass-panel p-3.5 rounded-2xl border border-slate-800 hover:border-brand-cyan/50 flex items-center gap-2.5 text-xs text-slate-200 transition-all hover:scale-[1.02] group"
                   >
                     <Linkedin className="w-4 h-4 text-brand-cyan" />
                     <span className="font-semibold">LinkedIn</span>
@@ -232,7 +247,7 @@ export default function Contact() {
                   <span>Rapid Response Guarantee</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  I typically respond to project inquiries, interview requests, and questions within 24 hours.
+                  I typically respond to project inquiries, full-time offers, and messages within 24 hours.
                 </p>
               </div>
 
@@ -242,85 +257,137 @@ export default function Contact() {
 
           {/* Right: Functional Message Form */}
           <div className="lg:col-span-7">
-            <div className="glass-panel p-7 sm:p-9 rounded-3xl border border-slate-800/80 shadow-xl">
+            <div className="glass-panel p-7 sm:p-9 rounded-3xl border border-slate-800/90 shadow-2xl relative">
               
               {submitted ? (
-                <div className="py-12 text-center space-y-4 animate-fadeIn">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                    <Check className="w-8 h-8" />
+                <div className="py-14 text-center space-y-4 animate-fadeIn">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/20 animate-bounce">
+                    <Check className="w-10 h-10" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Message Sent Successfully!</h3>
-                  <p className="text-sm text-slate-300 max-w-md mx-auto">
-                    Thank you for reaching out, Prince has received your notification and will get back to you shortly at your provided email.
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Message Dispatched!</h3>
+                  <p className="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+                    Thank you! Your message has been sent directly to <strong className="text-brand-cyan font-semibold">Prince Japhet Vender</strong> and saved to our database. I will reply to you shortly.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="mt-4 px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200"
+                    className="mt-4 px-6 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
                   >
                     Send another message
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  
+                  {/* Topic / Intent Chips */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-mono text-slate-300 font-medium flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-brand-cyan" />
+                      <span>Select Inquiry Category</span>
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {intents.map((item) => {
+                        const isSelected = selectedIntent === item.value;
+                        return (
+                          <button
+                            key={item.value}
+                            type="button"
+                            onClick={() => {
+                              soundFx.click();
+                              setSelectedIntent(item.value);
+                            }}
+                            className={`px-3 py-2 rounded-xl text-xs font-medium text-center transition-all duration-200 border ${
+                              isSelected
+                                ? 'bg-brand-cyan/20 border-brand-cyan text-white shadow-sm shadow-brand-cyan/20 scale-[1.02]'
+                                : 'bg-dark-950/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Name & Email Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-slate-300 font-medium">Your Name *</label>
+                      <label className="text-xs font-mono text-slate-300 font-medium flex items-center gap-1">
+                        <User className="w-3 h-3 text-brand-cyan" />
+                        <span>Your Name *</span>
+                      </label>
                       <input
                         type="text"
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Alex Morgan"
-                        className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan transition-colors"
+                        placeholder="e.g. Juan dela Cruz"
+                        className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700/80 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-slate-300 font-medium">Email Address *</label>
+                      <label className="text-xs font-mono text-slate-300 font-medium flex items-center gap-1">
+                        <Mail className="w-3 h-3 text-brand-cyan" />
+                        <span>Your Email Address *</span>
+                      </label>
                       <input
                         type="email"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="alex@company.com"
-                        className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan transition-colors"
+                        placeholder="you@company.com"
+                        className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700/80 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all"
                       />
                     </div>
                   </div>
 
+                  {/* Subject */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono text-slate-300 font-medium">Subject / Topic</label>
+                    <label className="text-xs font-mono text-slate-300 font-medium">Subject / Headline</label>
                     <input
                       type="text"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      placeholder="e.g. Full Stack Web/App Developer Role / Project Collaboration"
-                      className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan transition-colors"
+                      placeholder="e.g. Building an interactive web system / Developer position"
+                      className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700/80 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all"
                     />
                   </div>
 
+                  {/* Message */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono text-slate-300 font-medium">Your Message *</label>
+                    <label className="text-xs font-mono text-slate-300 font-medium flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3 text-brand-cyan" />
+                        <span>Your Message *</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {formData.message.length} chars
+                      </span>
+                    </label>
                     <textarea
                       required
                       rows={5}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder="Describe your requirements, system goals, or timeline..."
-                      className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan transition-colors resize-none"
+                      placeholder="Describe your project, requirements, timeline, or whatever is on your mind..."
+                      className="w-full px-4 py-3 rounded-xl bg-dark-950/80 border border-slate-700/80 text-white placeholder:text-slate-600 text-sm focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all resize-none"
                     ></textarea>
                   </div>
 
+                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-bold text-dark-950 bg-gradient-to-r from-brand-cyan via-brand-electric to-brand-indigo hover:opacity-95 shadow-neon-cyan transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl text-sm font-bold text-dark-950 bg-gradient-to-r from-brand-cyan via-brand-electric to-brand-indigo hover:opacity-95 shadow-neon-cyan transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 cursor-pointer"
                   >
                     {submitting ? (
-                      <span>Dispatching Message...</span>
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-dark-950" />
+                        <span>Transmitting Message to Prince...</span>
+                      </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4" />
+                        <Send className="w-4 h-4 text-dark-950" />
                         <span>Send Message to Prince</span>
                       </>
                     )}
