@@ -48,17 +48,17 @@ export default function Contact() {
     setErrorMessage('');
 
     try {
-      // 1. Send live email directly to japhetvender00@gmail.com
+      // 1. Send live email directly to japhetvender00@gmail.com via Web3Forms
       const emailPayload = {
+        access_key: '94caf3ce-60c1-475e-ace3-fce72a8fe240',
         name: formData.name,
         email: formData.email,
-        _subject: formData.subject || `New Portfolio Message from ${formData.name}`,
+        subject: formData.subject || `New Portfolio Inquiry from ${formData.name}`,
         message: formData.message,
-        _template: 'table',
-        _captcha: 'false',
+        from_name: 'Prince Japhet Portfolio',
       };
 
-      const emailResponse = await fetch('https://formsubmit.co/ajax/japhetvender00@gmail.com', {
+      const emailResponse = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,6 +66,9 @@ export default function Contact() {
         },
         body: JSON.stringify(emailPayload),
       });
+
+      const result = await emailResponse.json();
+      console.log('Web3Forms dispatch result:', result);
 
       // 2. Also log to Firebase Firestore collection (inquiries)
       try {
