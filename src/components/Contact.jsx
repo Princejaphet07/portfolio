@@ -9,6 +9,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [copiedField, setCopiedField] = useState(null);
   const [philippinesTime, setPhilippinesTime] = useState('');
 
@@ -38,28 +39,75 @@ export default function Contact() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
     soundFx.click();
     setSubmitting(true);
+    setErrorMessage('');
 
-    setTimeout(() => {
+    try {
+      // 1. Send live email directly to japhetvender00@gmail.com
+      const emailPayload = {
+        name: formData.name,
+        email: formData.email,
+        _subject: formData.subject || `New Portfolio Message from ${formData.name}`,
+        message: formData.message,
+        _template: 'table',
+        _captcha: 'false',
+      };
+
+      const emailResponse = await fetch('https://formsubmit.co/ajax/japhetvender00@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(emailPayload),
+      });
+
+      // 2. Also log to Firebase Firestore collection (inquiries)
+      try {
+        const firestoreUrl = 'https://firestore.googleapis.com/v1/projects/prince-japhet-portfolio/databases/(default)/documents/inquiries';
+        await fetch(firestoreUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: {
+              name: { stringValue: formData.name },
+              email: { stringValue: formData.email },
+              subject: { stringValue: formData.subject || 'General Inquiry' },
+              message: { stringValue: formData.message },
+              createdAt: { timestampValue: new Date().toISOString() },
+            },
+          }),
+        });
+      } catch (dbErr) {
+        console.warn('Firestore sync note:', dbErr);
+      }
+
       setSubmitting(false);
       setSubmitted(true);
       soundFx.success();
 
       confetti({
-        particleCount: 150,
-        spread: 90,
+        particleCount: 160,
+        spread: 100,
         origin: { y: 0.7 },
         colors: ['#38bdf8', '#818cf8', '#a855f7', '#34d399', '#f59e0b'],
       });
 
       setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setSubmitted(false), 8000);
-    }, 1000);
+      setTimeout(() => setSubmitted(false), 10000);
+    } catch (err) {
+      console.error('Submission error:', err);
+      // Fallback: Open mailto directly
+      const mailtoLink = `mailto:japhetvender00@gmail.com?subject=${encodeURIComponent(formData.subject || 'Portfolio Inquiry')}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+      window.location.href = mailtoLink;
+      setSubmitting(false);
+      setSubmitted(true);
+    }
   };
 
   return (
